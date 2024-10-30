@@ -1,0 +1,54 @@
+# Global parameters
+do_test: True         # whether to perform testing or training
+random_seed: 1
+dataset: kaggle         # dataset name
+log_file: run.log     # path to save the log file
+
+# Model hyperparameters
+moe_config:
+  task: mbti
+  num_experts: 5
+  trade_off_param: 0.01
+  dropout_prob: 0.0
+  temp_cl: 0.1
+  dropout_prob_cl: 0.1
+  pretrained_model_name_or_path: bert-base-cased
+
+# Data module configuration
+data_module_config:
+  do_setup: False
+  train_data_path: data/kaggle/train.pkl
+  val_data_path: data/kaggle/eval.pkl
+  test_data_path: data/kaggle/test.pkl
+
+  cache_dir: data/kaggle/cached_datasets
+  
+  train_batch_size: 4
+  train_limit_batches: 1.0
+  val_batch_size: 32
+  val_limit_batches: 1.0
+  test_batch_size: 32
+  test_limit_batches: 1.0
+
+# Training settings
+training_args:
+  amp: False                    # automatic mixed precision
+  do_save: True                # whether to save the checkpoint during training
+
+  epochs: 10
+  accumulation_steps: 8         # ! the actual batch size is batch_size * accumulation_steps, should be 20
+  eval_steps: 700               # evaluate the model every `eval_steps` steps
+  max_norm: null                # maximum value for gradient clipping
+
+  # device setting
+  device: cuda
+  gpus: [0, 1]                  # GPU device IDs to be used
+
+  # optimizer config
+  learning_rate: 2.0e-3
+  learning_rate_plm: 2.0e-5     # learning rate for pre-trained models
+  weight_decay: 1.0e-4
+
+  # save paths
+  checkpoint_save_path: trained_models/mvp_kaggle.pt    # model weight save path, set as null here to not save weights
+  log_dir: tensorboard/mvp_kaggle        # TensorBoard log directory path, saves training logs
